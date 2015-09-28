@@ -4,7 +4,7 @@
 #
 Name     : libbsd
 Version  : 0.7.0
-Release  : 6
+Release  : 7
 URL      : http://libbsd.freedesktop.org/releases/libbsd-0.7.0.tar.xz
 Source0  : http://libbsd.freedesktop.org/releases/libbsd-0.7.0.tar.xz
 Summary  : Utility functions from BSD systems
