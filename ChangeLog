@@ -1,3 +1,88 @@
+commit 2fb148a290c1677dcf09ada4379583e244a92014
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Wed Jan 27 15:25:23 2016 +0100
+
+    Release libbsd 0.8.2
+
+ configure.ac | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit c8f0723d2b4520bdd6b9eb7c3e7976de726d7ff7
+Author: Hanno Boeck <hanno@hboeck.de>
+Date:   Wed Jan 27 15:10:11 2016 +0100
+
+    Fix heap buffer overflow in fgetwln()
+    
+    In the function fgetwln() there's a 4 byte heap overflow.
+    
+    There is a while loop that has this check to see whether there's still
+    enough space in the buffer:
+    
+    		if (!fb->len || wused > fb->len) {
+    
+    If this is true more memory gets allocated. However this test won't be
+    true if wused == fb->len, but at that point wused already points out
+    of the buffer. Some lines later there's a write to the buffer:
+    
+    		fb->wbuf[wused++] = wc;
+    
+    This bug was found with the help of address sanitizer.
+    
+    Warned-by: ASAN
+    Fixes: https://bugs.freedesktop.org/show_bug.cgi?id=93881
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ src/fgetwln.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 008316aa291e0930eba067ed7b0772d0009813b0
+Author: Hanno Boeck <hanno@hboeck.de>
+Date:   Wed Jan 27 15:06:50 2016 +0100
+
+    test: Add missing <sys/stat.h> include
+    
+    The test in test/strmode.c can fail to compile depending on the
+    optimization flags used.
+    
+    The constants that are used in this file (S_IFREG etc.) come from the
+    <sys/stat.h> include file. It seems gcc ignores this error if one
+    compiles with "-O2" (default), but if one uses no optimization it fails.
+    
+    Add the missing include and it works all the time.
+    
+    Fixes: https://bugs.freedesktop.org/show_bug.cgi?id=93880
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ test/strmode.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+commit e4ab2c62cdc5457ea4b8cabd6c7d391810e17fc1
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Mon Jan 11 02:21:15 2016 +0100
+
+    test: Fix success return code for arc4random unit test
+
+ test/arc4random.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+commit bf5573f86ca0b042b3f56d4c65913d5825c82ffe
+Author: Lukas Fleischer <lfleischer@lfos.de>
+Date:   Thu Jan 7 17:26:12 2016 +0100
+
+    test: Fix race condition in headers-*.sh
+    
+    When running tests in parallel (e.g. using `make -j4 check`), the header
+    tests currently fail due to headers-overlay.sh and headers-system.sh
+    both generating headers-gen.c simultaneously, resulting in garbled
+    output. Fix this by using separate C files for the tests.
+    
+    Signed-off-by: Lukas Fleischer <lfleischer@lfos.de>
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ test/headers-overlay.sh | 6 +++---
+ test/headers-system.sh  | 6 +++---
+ 2 files changed, 6 insertions(+), 6 deletions(-)
+
 commit 229f85794f9031fe724562dce7e70feedb05788d
 Author: Guillem Jover <guillem@hadrons.org>
 Date:   Mon Dec 14 03:39:48 2015 +0100
