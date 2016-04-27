@@ -1,3 +1,109 @@
+commit 9bed430ee30e677d8774e4feba8707507979d62b
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Sat Apr 23 10:13:23 2016 +0200
+
+    Release libbsd 0.8.3
+
+ configure.ac | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit cbfe0ebca92ee6dd68fa3a6c02021c10bffed7ac
+Author: Szabolcs Nagy <nsz@port70.net>
+Date:   Sun Mar 27 12:37:09 2016 +0200
+
+    Add missing <fcntl.h> includes
+    
+    These are required due to the O_* macro usage, but have passed
+    undetected on glibc-based systems due to implicit inclusions.
+    
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ src/flopen.c | 1 +
+ src/nlist.c  | 1 +
+ 2 files changed, 2 insertions(+)
+
+commit f3b566bd7c56cddcc5df909828eac48e74805bcb
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Sun Mar 27 12:31:58 2016 +0200
+
+    test: Add a unit test for md5
+
+ test/.gitignore  |  1 +
+ test/Makefile.am |  1 +
+ test/md5.c       | 47 +++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 49 insertions(+)
+
+commit e86c1b5f4393f1d65fb855d16d4c056fbe39ffd4
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Sun Feb 14 09:00:57 2016 +0100
+
+    man: Fix ungrammatical construct
+    
+    Warned-by: lintian
+
+ man/queue.3bsd | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit b7ce33cf5191b99b5edcb0cde3fa5a4950cbe451
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Fri Feb 12 22:56:09 2016 +0100
+
+    build: Support clock_gettime() provided in librt
+    
+    In older glibc versions (< 2.17) clock_gettime() is in librt. Add a
+    check for this to avoid build breakage for programs/libraries that
+    use libbsd on such systems.
+    
+    Based-on-patch-by: Gustavo Zacarias <gustavo@zacarias.com.ar>
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ configure.ac    | 10 ++++++++++
+ src/Makefile.am |  2 ++
+ 2 files changed, 12 insertions(+)
+
+commit ed84bec5aa93030b09988c3d2e0e4d6411d0e914
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Wed Feb 10 10:38:51 2016 +0100
+
+    Switch URLs from http or git to https
+
+ COPYING                  |  2 +-
+ README                   | 13 +++++++++----
+ src/libbsd-ctor.pc.in    |  2 +-
+ src/libbsd-overlay.pc.in |  2 +-
+ src/libbsd.pc.in         |  2 +-
+ src/progname.c           |  7 ++++---
+ src/setproctitle.c       |  2 +-
+ 7 files changed, 18 insertions(+), 12 deletions(-)
+
+commit cbe305770345161f4ce5069552db71fa350dcb0c
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Sun Feb 7 02:53:28 2016 +0100
+
+    Fix file descriptor leak in HASHFileChunk helper
+    
+    This leak only happens on error conditions, so it's not too bad.
+    
+    Warned-by: coverity
+
+ src/hash/helper.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+commit 5a32ea0a72ba9fa4275080a2a51612ae50f66dd3
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Sun Feb 7 02:47:22 2016 +0100
+
+    Fix unportable sizeof() usage
+    
+    We are calculating the size of the array, and need to pass the size of
+    each element, not the size of a pointer to an element. Although this
+    happens to be the same in many cases, this is not a portable assumption.
+    
+    Warned-by: coverity
+
+ src/radixsort.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
 commit 2fb148a290c1677dcf09ada4379583e244a92014
 Author: Guillem Jover <guillem@hadrons.org>
 Date:   Wed Jan 27 15:25:23 2016 +0100
