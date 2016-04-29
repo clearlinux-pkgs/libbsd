@@ -4,7 +4,7 @@
 #
 Name     : libbsd
 Version  : 0.8.3
-Release  : 9
+Release  : 10
 URL      : http://libbsd.freedesktop.org/releases/libbsd-0.8.3.tar.xz
 Source0  : http://libbsd.freedesktop.org/releases/libbsd-0.8.3.tar.xz
 Summary  : Utility functions from BSD systems
