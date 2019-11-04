@@ -1,3 +1,2101 @@
+commit a11c98a6b5f57666260a5a4792404d81d59e418d
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Wed Aug 7 18:34:09 2019 +0200
+
+    Release libbsd 0.10.0
+
+ configure.ac | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 5745ca03626cce0298196481dc25579063720e46
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Tue Aug 6 15:49:41 2019 +0200
+
+    err: Add err(), warn(), errx() and warnx() familiy of functions
+    
+    Some systems such as Windows or musl-libc based ones do not have these
+    BSD extensions. In addition libbsd itself is making use of the warnx()
+    functions, so we better provide these interfaces in case they are
+    missing.
+
+ include/bsd/err.h | 24 ++++++++++++++++++
+ src/err.c         | 76 +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ src/libbsd.map    | 13 ++++++++++
+ 3 files changed, 113 insertions(+)
+
+commit 9628798d7d02e5f93b8dea02677676449a1ccd6c
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Tue Aug 6 15:37:43 2019 +0200
+
+    err: Rewrite warnc() and errc() family functions to be standalone
+    
+    Do not depend on the system vwarn() and verr() functions to implement
+    the *c() variants, as the system might actually lack any of the <err.h>
+    BSD extensions.
+
+ COPYING           |  2 +-
+ include/bsd/err.h |  8 ++++----
+ src/err.c         | 38 +++++++++++++++++++++++---------------
+ 3 files changed, 28 insertions(+), 20 deletions(-)
+
+commit f34a5f71d92f5625875f16a883790de75dd4477d
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Tue Aug 6 15:29:54 2019 +0200
+
+    err: Mark error functions as non-returning with __dead2
+
+ include/bsd/err.h | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+commit 72c68868c87c1d31bc658b43c337e8c162d16997
+Author: Michael Shigorin <mike@altlinux.org>
+Date:   Wed Aug 7 00:02:09 2019 +0200
+
+    Add e2k support for nlist()
+    
+    This is a Russian 64-bit LE VLIW architecture named Elbrus
+    (formerly Elbrus 2000).
+    
+    [guillem@hadrons.org:
+     - Place the entry in alphabetical order. ]
+    
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ src/local-elf.h | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+commit a4323f2b1604c440e3049461ddab0bc0b3da447f
+Author: Frank Schaefer <kelledin@gmail.com>
+Date:   Tue May 28 16:04:54 2019 -0500
+
+    Add AArch64 ILP32 support to nlist()
+    
+    Closes: !7
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ src/local-elf.h | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+commit 4997efa59a607a2b4aa2519a50f9e51017b667d2
+Author: Rosen Penev <rosenp@gmail.com>
+Date:   Fri May 17 01:44:56 2019 +0000
+
+    Add ARC support to nlist()
+    
+    Closes: !6
+    Signed-off-by: Rosen Penev <rosenp@gmail.com>
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ src/local-elf.h | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+commit 96202c6c14e22b2cd4c02e13d419f507858cd754
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Wed Aug 7 00:00:15 2019 +0200
+
+    Add a comment to note the ELF entries are sorted alphabetically
+    
+    This should help people wanting to add new entries.
+
+ src/local-elf.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+commit 61d378f5e9c588ef4df40c48f367e5d2f39a9525
+Author: James Clarke <jrtc27@jrtc27.com>
+Date:   Sun Feb 3 00:11:15 2019 +0000
+
+    Re-allow direct use of nlist.n_name in <nlist.h>
+    
+    Commit e8d340de ("Remove a.out support from nlist()") introduced a copy
+    of the definition of nlist from a.out.h. However, as well as having
+    n_name inside n_un, on the various BSDs n_name could also be accessed
+    as a direct member of nlist, and this is made use of by FreeBSD's
+    usr.bin/netstat/main.c. Thus we should also add the same enclosing
+    anonymous union.
+    
+    [guillem@hadrons.org:
+     - Add a minimal unit test. ]
+    
+    Closes: !4
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ include/bsd/nlist.h | 9 ++++++---
+ test/nlist.c        | 2 ++
+ 2 files changed, 8 insertions(+), 3 deletions(-)
+
+commit 9d917aad37778a9f4a96ba358415f077f3f36f3b
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Wed Aug 7 22:58:30 2019 +0200
+
+    nlist: Fix out-of-bounds read on strtab
+    
+    When doing a string comparison for a symbol name from the string table,
+    we should make sure we do a bounded comparison, otherwise a non-NUL
+    terminated string might make the code read out-of-bounds.
+    
+    Warned-by: coverity
+
+ src/nlist.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+commit 18662cadfcba39607bd5f379e19cdadce5194480
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Sat Jun 15 14:33:32 2019 +0200
+
+    nlist: Fix unbounded malloc() calls
+    
+    There are a couple of malloc() calls with unbounded size arguments,
+    coming from the parsed file. We need to make sure the size is not
+    larger than the file being parsed, otherwise we might end up with
+    out of memory conditions.
+    
+    Reported-by: Daniel Hodson <daniel@elttam.com.au>
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ src/nlist.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit ce53f7c25f64a694550886113154ce0b201be58f
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Sat Jun 15 14:33:32 2019 +0200
+
+    nlist: Fix pread() return value check
+    
+    We should check for partial reads, and not continue in those cases,
+    as we are not retrying them, otherwise we might end up operating on
+    uninitialized data.
+    
+    Reported-by: Daniel Hodson <daniel@elttam.com.au>
+    Based-on-patch-by: Daniel Hodson <daniel@elttam.com.au>
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ src/nlist.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 24d1f4dd34cd86759673f736c16e671a6303f8a8
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Sat Jun 15 14:33:32 2019 +0200
+
+    nlist: Check whether sh_link is within bounds
+    
+    The sh_link members should be >= e_shnum, otherwise we might do out of
+    bounds read accesses on the shdr array.
+    
+    Reported-by: Daniel Hodson <daniel@elttam.com.au>
+    Based-on-patch-by: Daniel Hodson <daniel@elttam.com.au>
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ src/nlist.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+commit e9529d9b4a7833049d34b4ec3bf018bdfe68c807
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Sat Jun 15 14:33:32 2019 +0200
+
+    nlist: Check that e_shnum and e_shentsize are within bounds
+    
+    The e_shnum must not be 0, otherwise we will do a zero sized allocation
+    and further processing of the executable will lead to out of bounds
+    read/write accesses. The e_shentsize must be equal to sizeof(Elf_Shdr),
+    otherwise we will perform out of bounds read accesses on the shdr array.
+    
+    Reported-by: Daniel Hodson <daniel@elttam.com.au>
+    Based-on-patch-by: Daniel Hodson <daniel@elttam.com.au>
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ src/nlist.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+commit 3aaedb12086a77c5ea7564eb3b5b2f02f788fe61
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Sat Jun 15 14:33:32 2019 +0200
+
+    nlist: Check whether the nl argument is not NULL
+    
+    This prevents programming errors.
+    
+    Reported-by: Daniel Hodson <daniel@elttam.com.au>
+    Based-on-patch-by: Daniel Hodson <daniel@elttam.com.au>
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ man/nlist.3bsd | 5 ++++-
+ src/nlist.c    | 4 ++++
+ 2 files changed, 8 insertions(+), 1 deletion(-)
+
+commit 2c754f435b18a642f023278fc2372f2186a4ed8b
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Wed Jul 31 03:49:43 2019 +0200
+
+    man: Add man page sections to function references
+    
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ man/libbsd.7 | 32 ++++++++++++++++----------------
+ 1 file changed, 16 insertions(+), 16 deletions(-)
+
+commit ee4d24970a637f6002ee69ca4e6622a68265e95c
+Author: Sebastian <versat82@gmail.com>
+Date:   Sun Mar 10 10:03:12 2019 +0000
+
+    man: Fix typo
+    
+    Closes: !5
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ man/libbsd.7 | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 8d2afa3a9f5cdf40d82a81dd70994d321ef62c0e
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Wed Jul 31 03:49:24 2019 +0200
+
+    man: Fix typos
+    
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ man/libbsd.7 | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit e9f6faf3aabda51943e0ede5fceaaf8e7c9759bb
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Wed Jul 31 03:02:38 2019 +0200
+
+    man: Replace references to a.out(5) with elf(5)
+    
+    The a.out(5) support in nlist(3) got removed some time ago, and
+    there is now only elf(5) support.
+    
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ TODO           | 1 -
+ man/nlist.3bsd | 4 ++--
+ 2 files changed, 2 insertions(+), 3 deletions(-)
+
+commit 99320b9168ffb0112def1a712e8d59441d1b46d9
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Thu Jun 13 23:43:57 2019 +0200
+
+    man: Define doc-operating-system-NetBSD string variables
+    
+    This way we do not depend on the installed groff being new enough.
+    
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ man/errc.3bsd     | 1 +
+ man/strtoi.3bsd   | 1 +
+ man/strtonum.3bsd | 1 +
+ man/strtou.3bsd   | 1 +
+ 4 files changed, 4 insertions(+)
+
+commit 71c710e9a83326023746e7e84091cd4964964ca6
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Thu Jun 13 23:42:49 2019 +0200
+
+    man: Use major.minor version for .Nx macros
+    
+    The macro only recognizes this version form, and not just major alone.
+    
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ man/strtoi.3bsd   | 2 +-
+ man/strtonum.3bsd | 2 +-
+ man/strtou.3bsd   | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
+
+commit 21f4052c5b376800c4251462e10fa4b9630c6c69
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Thu Jun 13 23:36:09 2019 +0200
+
+    man: Add doc-str-Lb-libbsd aliases for str-Lb-libbsd
+    
+    groff(1) has changed the internal layout for the .Lb doc strings, but to
+    preserve backwards compatibility we cannot simply rename them, we need
+    to create new aliases so that these will work with old and new macros.
+    
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ man/arc4random.3bsd      | 1 +
+ man/closefrom.3bsd       | 1 +
+ man/errc.3bsd            | 1 +
+ man/expand_number.3bsd   | 1 +
+ man/explicit_bzero.3bsd  | 1 +
+ man/fgetln.3bsd          | 1 +
+ man/fgetwln.3bsd         | 1 +
+ man/flopen.3bsd          | 1 +
+ man/fmtcheck.3bsd        | 1 +
+ man/fparseln.3bsd        | 1 +
+ man/fpurge.3bsd          | 1 +
+ man/funopen.3bsd         | 1 +
+ man/getbsize.3bsd        | 1 +
+ man/getpeereid.3bsd      | 1 +
+ man/getprogname.3bsd     | 1 +
+ man/heapsort.3bsd        | 1 +
+ man/humanize_number.3bsd | 1 +
+ man/mdX.3bsd             | 1 +
+ man/nlist.3bsd           | 1 +
+ man/pidfile.3bsd         | 1 +
+ man/radixsort.3bsd       | 1 +
+ man/readpassphrase.3bsd  | 1 +
+ man/reallocarray.3bsd    | 1 +
+ man/reallocf.3bsd        | 1 +
+ man/setmode.3bsd         | 1 +
+ man/setproctitle.3bsd    | 1 +
+ man/stringlist.3bsd      | 1 +
+ man/strlcpy.3bsd         | 1 +
+ man/strmode.3bsd         | 1 +
+ man/strnstr.3bsd         | 1 +
+ man/strtoi.3bsd          | 1 +
+ man/strtonum.3bsd        | 1 +
+ man/strtou.3bsd          | 1 +
+ man/timeradd.3bsd        | 1 +
+ man/timeval.3bsd         | 1 +
+ man/unvis.3bsd           | 1 +
+ man/vis.3bsd             | 1 +
+ man/wcslcpy.3bsd         | 1 +
+ 38 files changed, 38 insertions(+)
+
+commit 1899e2c5ab19526706bbe7386171ff0f06cfaa44
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Wed Jul 31 02:58:01 2019 +0200
+
+    Update TODO
+    
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ TODO | 1 +
+ 1 file changed, 1 insertion(+)
+
+commit 480334080262a705bc029d0acb62d49900bfbe3c
+Author: Aaron Dierking <aarond@fb.com>
+Date:   Thu Jun 14 11:38:32 2018 -0700
+
+    Provide a <sys/param.h> with MIN() and MAX()
+    
+    Windows doesn't provide <sys/param.h>. Several libbsd sources require it
+    for MIN(), and these are useful non-system-specific macros anyway.
+    
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ COPYING                 |  2 ++
+ include/Makefile.am     |  1 +
+ include/bsd/sys/param.h | 49 +++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 52 insertions(+)
+
+commit f99b8ea52737701820078e9efd59fa75f348878e
+Author: Aaron Dierking <aarond@fb.com>
+Date:   Thu Jun 14 11:38:33 2018 -0700
+
+    build: Disable CRT warnings on Windows
+    
+    These warnings are not helpful for libbsd.
+    
+    [guillem@hadrons.org:
+     - Rename WINDOWS conditional to OS_WINDOWS.
+     - Add a nil terminator to the AM_CPPFLAGS. ]
+    
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ src/Makefile.am | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+commit 4bed48398ff97b2d98cf4665b528a939c620522c
+Author: Aaron Dierking <aarond@fb.com>
+Date:   Thu Jun 14 11:38:32 2018 -0700
+
+    build: Detect Windows/MinGW at configure time
+    
+    Extend the host OS checks to define an OS_WINDOWS automake conditional if
+    the host is MinGW-like. This will be useful for future Windows-specific
+    build tweaks.
+    
+    [guillem@hadrons.org:
+     - Rename WINDOWS conditional to OS_WINDOWS. ]
+    
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ configure.ac | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+commit 2e071c3cc152ec55db7b87248fdc017a0f735302
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Tue Aug 6 19:14:29 2019 +0200
+
+    build: Support platforms without symbol versioning
+    
+    The .symver directive is ELF-specific. On non-ELF platforms, work around
+    this with __attribute__((__alias__)) for the default symbol, and ignore
+    the variant versioned symbols.
+    
+    Based-on-patch-by: Aaron Dierking <aarond@fb.com>
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ src/local-link.h | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+commit 890699a78b892a8591cd465f97d4967ee94d54c9
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Tue Aug 6 18:51:45 2019 +0200
+
+    build: Abstract symbol versioning via new libbsd_symver_* macros
+    
+    This makes it more obvious what they are doing. It will make it easier
+    to make these directives more portable, as they are really ELF specific.
+
+ src/local-link.h   | 7 +++++++
+ src/setproctitle.c | 5 +++--
+ src/unvis.c        | 6 ++++--
+ src/vis.c          | 6 ++++--
+ 4 files changed, 18 insertions(+), 6 deletions(-)
+
+commit b0ebb0d4c26b281facbab7a774510b541637b13b
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Tue Aug 6 23:16:42 2019 +0200
+
+    build: Use __register_atfork() only if really available
+    
+    This is a glibc-specific symbol that has no public declaration. But is
+    being used by the OpenBSD and this implementation as a hack to avoid
+    having to link against the pthread library. This interface is at least
+    included in LSB 5.0 [L], and using pthread_atfork() is otherwise
+    problematic anyway [P].
+    
+     [L] <https://refspecs.linuxfoundation.org/LSB_5.0.0/LSB-Core-generic/LSB-Core-generic/baselib---register-atfork.html>
+     [P] <http://austingroupbugs.net/view.php?id=851>
+    
+    One problem is that we were using it whenever __GLIBC__ is defined,
+    which is supposed to be defined only on an actual glibc, but uClibc
+    defines that macro, but it does not provide the symbol on its noMMU
+    variant.
+    
+    We add a new configure check that will try to link a program that uses
+    that symbol to make sure it is present.
+    
+    Closes: !2
+    Reported-by: Fabrice Fontaine <fontaine.fabrice@gmail.com>
+
+ configure.ac           | 17 +++++++++++++++++
+ src/Makefile.am        |  4 +++-
+ src/arc4random_linux.h |  2 +-
+ src/arc4random_unix.h  |  2 +-
+ 4 files changed, 22 insertions(+), 3 deletions(-)
+
+commit 73aea4f8083e8c35ce1123e36a9967ecd6a26c97
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Tue Aug 6 23:11:50 2019 +0200
+
+    build: Fix check for clock_gettime() within librt
+    
+    The check was always setting the libraries to link to include -lrt,
+    as the success case includes the builtin one. Handle the various
+    values.
+
+ configure.ac | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+commit 7cfa2d4530325444fa71c2bdb14e11ba9d4de0b6
+Author: Aaron Dierking <aarond@fb.com>
+Date:   Thu Jun 14 11:38:31 2018 -0700
+
+    Correct Clang feature detection
+    
+    Clang's __GNUC__ and __GNUC_MINOR__ definitions are not reliable and may
+    not be defined at all when targeting the MSVC ABI. Use feature-checking
+    macros when possible or check for __clang__.
+    
+    [guillem@hadrons.org: Update for __ protected keyword change. ]
+    
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ include/bsd/sys/cdefs.h | 27 +++++++++++++++++----------
+ src/arc4random.c        |  6 +++---
+ 2 files changed, 20 insertions(+), 13 deletions(-)
+
+commit 574c7a1365b729343494181f36376d378b54fdea
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Mon Jun 18 00:36:44 2018 +0200
+
+    Protect C language extensions with two leading and trailing underscores
+    
+    This should make their usage safer against user macros.
+
+ configure.ac            |  2 +-
+ include/bsd/sys/cdefs.h | 10 +++++-----
+ src/explicit_bzero.c    |  2 +-
+ src/local-link.h        |  2 +-
+ src/setproctitle.c      |  9 ++++++---
+ src/setproctitle_ctor.c |  2 +-
+ 6 files changed, 15 insertions(+), 12 deletions(-)
+
+commit c2d9d8408869af50fd5802542a4f032375e5e7bc
+Author: Aaron Dierking <aarond@fb.com>
+Date:   Thu Jun 14 11:38:32 2018 -0700
+
+    Guard non-portable forwarded includes
+    
+    These headers are not available on Windows. <bsd/sys/cdefs.h> ensures
+    that __has_include() and __has_include_next() are defined.
+    
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ include/bsd/err.h        | 12 ++++++------
+ include/bsd/getopt.h     |  6 ++++++
+ include/bsd/sys/endian.h |  6 ++++++
+ include/bsd/sys/time.h   |  6 ++++++
+ include/bsd/unistd.h     | 11 ++++++-----
+ 5 files changed, 30 insertions(+), 11 deletions(-)
+
+commit 2ebe6d5a025dc9762db2b1854d966639e1920e60
+Author: Aaron Dierking <aarond@fb.com>
+Date:   Thu Jun 14 11:38:32 2018 -0700
+
+    Windows support for inet_net_pton()
+    
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ src/inet_net_pton.c | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+commit aeea1f408381007aefdd391fab6d9fdb47c69521
+Author: Aaron Dierking <aarond@fb.com>
+Date:   Thu Jun 14 11:38:32 2018 -0700
+
+    Windows support for HASHFileChunk()
+    
+    <io.h> provides the necessary file I/O functions.
+    
+    [guillem@hadrons.org: Move include before <hashinc>. ]
+    
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ src/hash/helper.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+commit 0500a1bd086d2d6fe974e7ded7ea615594f1f7b0
+Author: Aaron Dierking <aarond@fb.com>
+Date:   Thu Jun 14 11:38:32 2018 -0700
+
+    Don't require <grp.h>
+    
+    This is only used in the overlay test and Windows does not provide it.
+    
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ configure.ac   | 2 +-
+ test/overlay.c | 2 ++
+ 2 files changed, 3 insertions(+), 1 deletion(-)
+
+commit 3d9c6c08ed254cfe16fc53867b1fe6f12031873c
+Author: Aaron Dierking <aarond@fb.com>
+Date:   Thu Jun 14 11:38:32 2018 -0700
+
+    Only define S_ISTXT if S_ISVTX is defined
+    
+    Windows doesn't provide S_ISVTX. Prefer not defining it rather than
+    defining it to something invalid.
+    
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ include/bsd/unistd.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit b9dee9f69a6e9f03418bde5638642ddc8df18f74
+Author: Aaron Dierking <aarond@fb.com>
+Date:   Thu Jun 14 11:38:31 2018 -0700
+
+    Use CHAR_BIT instead of NBBY in strnvis()
+    
+    <sys/param.h> is not available on Windows.
+    
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ src/vis.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+commit 81c3c3e4054f88049c4401b1d472188c75bdd5e4
+Author: Aaron Dierking <aarond@fb.com>
+Date:   Thu Jun 14 11:38:31 2018 -0700
+
+    Replace reintroduced legacy u_* type usage in strnvis() and strnunvis()
+    
+    This fixes a regression caused by 2d7de18. These types are not available
+    on all systems.
+    
+    Fixes: commit 2d7de186e9cb19a756c0630ee85cb3f2d29b3484
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ src/unvis.c |  3 ++-
+ src/vis.c   | 15 +++++++++------
+ 2 files changed, 11 insertions(+), 7 deletions(-)
+
+commit 5e0998fa4f0300ec99d0e30c994a500d91cb40c1
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Sat Jun 9 00:08:14 2018 +0200
+
+    Remove dead code in vis
+    
+    The loop only executes while len > 0, and the trinary operator in the
+    function argument is checking against len >= 1 which will always be
+    true.
+    
+    Warned-by: coverity
+
+ src/vis.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 8e2d55047cc9febe38db2b44c4942dd221f182eb
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Wed Jun 6 05:41:34 2018 +0200
+
+    Fix vis family of functions to not leak
+    
+    The code uses an internal helper function to avoid code repetition. But
+    to get there, the function takes a pointer to a pointer, so that the few
+    functions that require returning an allocated buffer can get hold of it
+    this way.
+    
+    The problem is that the user might pass a NULL pointer and trigger an
+    internal allocation even if the functions are not expected to do so.
+    
+    Add a new internal helper for non-allocations, that will assert that
+    condition, and make any other function that requires this behavior call
+    this one instead.
+    
+    Warned-by: coverity
+
+ src/vis.c | 39 +++++++++++++++++++++++++--------------
+ 1 file changed, 25 insertions(+), 14 deletions(-)
+
+commit 13c32916b4baab58d93940d57fea9ff0777f1931
+Author: Baruch Siach <baruch@tkos.co.il>
+Date:   Tue Jun 5 19:21:46 2018 +0300
+
+    flopen: Add missing <fcntl.h> include
+    
+    Commit 993828d84ee (Add flopenat() function from FreeBSD) dropped the
+    fcntl.h header. This breaks the build with musl libc:
+    
+    flopen.c: In function ‘vflopenat’:
+    flopen.c:60:14: error: ‘O_CREAT’ undeclared (first use in this function)
+      if (flags & O_CREAT) {
+                  ^~~~~~~
+    
+    Restore the fcntl.h header include to fix the build.
+    
+    Fixes: commit 993828d84eed0468c6c15b2818e534e6b134b8e4
+    Submitted-also-by: parazyd <parazyd@dyne.org>
+    Signed-off-by: Baruch Siach <baruch@tkos.co.il>
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ src/flopen.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+commit 8e834cd0686794ce7f70cb915ddd754e1d1ce726
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Thu May 31 03:59:49 2018 +0200
+
+    build: Simplify gitlab CI configuration
+    
+    Merge all stages so that we do not need to pass artifacts around.
+    Quiesce «apt install».
+
+ .gitlab-ci.yml | 25 ++++++-------------------
+ 1 file changed, 6 insertions(+), 19 deletions(-)
+
+commit e354f9b1d07b45411fc4f1b3818a5769aad4d1fa
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Thu May 31 03:46:14 2018 +0200
+
+    build: Install git in gitlab CI configuration
+
+ .gitlab-ci.yml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 4c5e9b478e32a7140535df475b6510af8afbeec8
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Thu May 31 03:34:07 2018 +0200
+
+    build: Fix gitlab CI configuration
+    
+    Run «apt install» in non-interactive mode, and do not install
+    Recommends. Replace build-essential, which is rather fat, with gcc
+    and make. Execute autogen instead of autoreconf directly.
+
+ .gitlab-ci.yml | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 005b509061dcc5d6cf9495b707be81046c1cb2c8
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Thu May 31 01:45:28 2018 +0200
+
+    build: Add a gitlab CI configuration file
+
+ .gitlab-ci.yml | 22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
+
+commit a8531ad0513074dc706929b66ad2544945d9d11a
+Author: Jakub Wilk <jwilk@jwilk.net>
+Date:   Tue May 22 13:08:56 2018 +0200
+
+    man: Fix comma splice
+    
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ man/setproctitle.3bsd | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit c4b0fd2c9f3e0f533536556c2b2e6eb6a2467ac4
+Author: Jakub Wilk <jwilk@jwilk.net>
+Date:   Tue May 22 13:08:55 2018 +0200
+
+    man: Fix name of the function injected by libbsd-ctor
+    
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ man/libbsd.7 | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 1ca09c18f76a0ed2ef6349463c25d509a55e20ff
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Tue May 22 16:03:59 2018 +0200
+
+    Release libbsd 0.9.1
+
+ configure.ac | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit e4e15ed286f7739682737ec2ca6d681dbdd00e79
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Tue May 22 13:50:44 2018 +0200
+
+    Fix strnvis() and strnunvis() NetBSD ABI break
+    
+    The NetBSD implementations have different prototypes to the ones coming
+    from OpenBSD, which will break builds, and have caused segfaults at
+    run-time. We provide now both interfaces with different prototypes as
+    different version nodes allow selecting them at compile-time, defaulting
+    for now to the OpenBSD one to avoid build-time breakage, while emitting
+    a compile-time warning. Later on, in 0.10.0, we will be switching the
+    compile-time default to the NetBSD version.
+    
+    Ref: http://gnats.netbsd.org/44977
+    Fixes: https://bugs.debian.org/899282
+
+ include/bsd/vis.h  | 34 ++++++++++++++++++++++++++++++++--
+ src/libbsd.map     |  8 ++++++++
+ src/unvis.c        | 27 ++++++++++++++++++++++++++-
+ src/vis.c          | 27 ++++++++++++++++++++++++++-
+ test/.gitignore    |  2 ++
+ test/Makefile.am   |  2 ++
+ test/vis-openbsd.c | 47 +++++++++++++++++++++++++++++++++++++++++++++++
+ test/vis.c         | 46 ++++++++++++++++++++++++++++++++++++++++++++++
+ 8 files changed, 189 insertions(+), 4 deletions(-)
+
+commit bf697b900c06140a6ff6d00e22a812c46144bed1
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Tue May 22 15:43:48 2018 +0200
+
+    Add symbol redirection support
+    
+    We need this to be able to select different version symbols at
+    compile-time.
+
+ include/bsd/sys/cdefs.h | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+commit f1966385b3a062f1932794da7622916eb3a48115
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Mon May 21 22:41:23 2018 +0200
+
+    Fix COPYING file format
+    
+    We cannot refer to a License short-name if that is not on its own
+    License paragraph. Split several other common License fields into
+    their own paragraphs to avoid this problem in the future.
+
+ COPYING | 198 +++++++++++++++++++++++++++++++++-------------------------------
+ 1 file changed, 103 insertions(+), 95 deletions(-)
+
+commit e007233cf0ea62bbeab30f960083006cb676f973
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Mon May 21 04:41:56 2018 +0200
+
+    Release libbsd 0.9.0
+
+ configure.ac | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 3cabf46bb089bbb5924c659941b9c8cb67ce3508
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Mon May 21 03:15:59 2018 +0200
+
+    Deprecate fgetwln()
+    
+    This function has the same problems as fgetln() which is already marked
+    as deprecated.
+
+ man/libbsd.7  | 15 +++++++++++++--
+ src/fgetwln.c |  5 +++++
+ 2 files changed, 18 insertions(+), 2 deletions(-)
+
+commit 6eebc1f2645f0c77508b5c536bac6ed81bd2502b
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Mon May 21 03:10:12 2018 +0200
+
+    Fix typo in fgetln() linker warning
+
+ src/fgetln.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit a1730c10632b9e1e800db5e280eea576bc9052ec
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Tue May 15 00:55:02 2018 +0200
+
+    Add Windows support for getentropy() and arc4random()
+    
+    Import from OpenBSD.
+
+ COPYING              |  2 ++
+ src/Makefile.am      |  2 ++
+ src/arc4random.h     |  2 ++
+ src/arc4random_win.h | 78 ++++++++++++++++++++++++++++++++++++++++++++++++++++
+ src/getentropy.c     |  2 ++
+ src/getentropy_win.c | 59 +++++++++++++++++++++++++++++++++++++++
+ 6 files changed, 145 insertions(+)
+
+commit 6f68c930765d95ab2644c7a1210a0a640fd9d4bf
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Mon May 21 00:22:38 2018 +0200
+
+    Switch strtonum() implementation from strtoll() to strtoi()
+    
+    Import from NetBSD.
+
+ COPYING           |  5 +--
+ man/strtonum.3bsd | 83 ++++++++++++++++++++++++++++++++----------------
+ src/strtonum.c    | 95 ++++++++++++++++++++++++++-----------------------------
+ 3 files changed, 103 insertions(+), 80 deletions(-)
+
+commit e13b1a337a608c3301ccb9ea344b6f97279a818f
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Mon May 21 00:20:49 2018 +0200
+
+    Import strtoi() and strtou() functions from NetBSD
+
+ COPYING                |   6 +-
+ include/Makefile.am    |   1 +
+ include/bsd/inttypes.h |  49 ++++++++++
+ man/Makefile.am        |   2 +
+ man/libbsd.7           |   3 +
+ man/strtoi.3bsd        | 238 +++++++++++++++++++++++++++++++++++++++++++++++++
+ man/strtou.3bsd        | 238 +++++++++++++++++++++++++++++++++++++++++++++++++
+ src/Makefile.am        |   2 +
+ src/libbsd.map         |   3 +
+ src/strtoi.c           |  97 ++++++++++++++++++++
+ src/strtou.c           |  97 ++++++++++++++++++++
+ 11 files changed, 735 insertions(+), 1 deletion(-)
+
+commit ef5faeb575c21257347643fb157c6b64f62b6ffe
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Sun May 20 19:20:33 2018 +0200
+
+    Update few RCS keyword contents to match BSD originals
+    
+    This will slightly reduce the delta, and makes it easier to compare the
+    sources.
+
+ src/chacha_private.h | 2 +-
+ src/radixsort.c      | 3 ++-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
+
+commit 2d7de186e9cb19a756c0630ee85cb3f2d29b3484
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Mon May 21 03:09:05 2018 +0200
+
+    Update vis/unvis modules from NetBSD
+
+ COPYING           |  11 +-
+ include/bsd/vis.h |  57 +++-
+ man/unvis.3bsd    | 201 ++++++++-----
+ man/vis.3bsd      | 440 +++++++++++++++++++++-------
+ src/libbsd.map    |  12 +
+ src/unvis.c       | 538 ++++++++++++++++++++++++----------
+ src/vis.c         | 856 ++++++++++++++++++++++++++++++++++++++++++------------
+ 7 files changed, 1592 insertions(+), 523 deletions(-)
+
+commit 3efad641551f79adbacead4f1d1641e63c2efa05
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Mon May 21 01:56:33 2018 +0200
+
+    Update readpassphrase() from OpenBSD
+
+ man/readpassphrase.3bsd |  16 ++++---
+ src/readpassphrase.c    | 116 ++++++++++++++++++++++++++----------------------
+ 2 files changed, 73 insertions(+), 59 deletions(-)
+
+commit a6f407ab0de24c725cb8c66a06ab30527e5c33f2
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Mon May 21 01:34:17 2018 +0200
+
+    Update heapsort() from OpenBSD
+
+ src/heapsort.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
+
+commit 21edbb4f22935f2c0484db6147dfd9825adb8ec0
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Mon May 21 00:31:15 2018 +0200
+
+    Update fmtcheck() from NetBSD
+
+ man/fmtcheck.3bsd |  61 ++++++++-----------
+ src/fmtcheck.c    | 174 +++++++++++++++++++++++++++++++++++++++---------------
+ 2 files changed, 153 insertions(+), 82 deletions(-)
+
+commit e3979d1a7ce2777ea959f3361573a10af90db63d
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Sun May 20 19:22:16 2018 +0200
+
+    Update humanize_number() from FreeBSD
+    
+    Implements HN_IEC_PREFIXES.
+
+ COPYING               |   1 +
+ include/bsd/libutil.h |  16 +++---
+ src/humanize_number.c | 133 ++++++++++++++++++++++++++++++++------------------
+ 3 files changed, 95 insertions(+), 55 deletions(-)
+
+commit facbddb652eba99c9334e4e390b9d829c590d4c2
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Sun May 20 19:18:18 2018 +0200
+
+    Update pidfile module from FreeBSD
+    
+    Use EINVAL instead of EDOOFUS. Add a missing synopsis for
+    pidfile_fileno() in the man page. Move the definition of struct pidfh
+    from libutil.h into pidfile.c following upstream change.
+
+ include/bsd/libutil.h |  9 ++----
+ man/pidfile.3bsd      | 77 ++++++++++++++++++++++++++++++++++++++++-----------
+ src/libbsd.map        |  2 ++
+ src/pidfile.c         | 58 +++++++++++++++++++++++++++-----------
+ 4 files changed, 107 insertions(+), 39 deletions(-)
+
+commit 3d88c999b4a0ac2820c84732262ba7a0ad44e421
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Tue May 15 00:41:26 2018 +0200
+
+    Update arc4random() headers from OpenBSD
+    
+    Split Linux support into its own header separate from the generic Unix
+    to fix a Linux-specific issue with clone(). Reset rsp to NULL on failure.
+
+ COPYING                                       |  1 +
+ src/Makefile.am                               |  3 ++-
+ src/arc4random.h                              |  2 ++
+ src/{arc4random_unix.h => arc4random_linux.h} | 12 ++++--------
+ src/arc4random_unix.h                         |  3 ++-
+ 5 files changed, 11 insertions(+), 10 deletions(-)
+
+commit e42381dc51065e6d48ae982a01888dddde26ef7b
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Tue May 15 00:41:26 2018 +0200
+
+    Update getentropy() code from OpenBSD
+    
+    Includes changes to handle the Linux syscall blocking when there is not
+    enough entropy during boot, by switching it to non-blocking mode and
+    falling back to the alternative implementations. Man page URL reference
+    fixes. Build fixes for Mac OS X.
+    
+    Fixes: https://bugs.debian.org/898088
+
+ src/getentropy_aix.c     |  4 ++--
+ src/getentropy_bsd.c     |  4 ++--
+ src/getentropy_hpux.c    |  2 +-
+ src/getentropy_hurd.c    |  4 ++--
+ src/getentropy_linux.c   | 25 ++++++++++++++-----------
+ src/getentropy_osx.c     | 15 +++++++++++++--
+ src/getentropy_solaris.c |  4 ++--
+ 7 files changed, 36 insertions(+), 22 deletions(-)
+
+commit 993828d84eed0468c6c15b2818e534e6b134b8e4
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Mon May 21 01:11:46 2018 +0200
+
+    Add flopenat() function from FreeBSD
+
+ COPYING               |  2 +-
+ include/bsd/libutil.h |  1 +
+ man/flopen.3bsd       | 42 +++++++++++++++++++++++++++-------
+ src/flopen.c          | 62 ++++++++++++++++++++++++++++++++++++++++++---------
+ src/libbsd.map        |  4 ++++
+ 5 files changed, 92 insertions(+), 19 deletions(-)
+
+commit 30b4d507540bada5533eea60a850090ccc54d397
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Mon May 21 03:00:47 2018 +0200
+
+    Add __arraycount() macro from NetBSD
+
+ include/bsd/sys/cdefs.h | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+commit f6ed7c278bf9cf5db89da375505f636de3009598
+Author: Baruch Siach <baruch@tkos.co.il>
+Date:   Tue Apr 3 20:10:14 2018 +0300
+
+    Fix build for openrisc with uClibc
+    
+    uClibc defines EM_OR1K instead of EM_OPENRISC for the OpenRISC ELF
+    e_machine ID. Use EM_OR1K when EM_OPENRISC is not defined.
+    
+    This fixes the following build failure:
+    
+    In file included from nlist.c:44:0:
+    nlist.c: In function ‘__elf_is_okay__’:
+    local-elf.h:224:23: error: ‘EM_OPENRISC’ undeclared (first use in this function)
+     #define ELF_TARG_MACH EM_OPENRISC
+                           ^
+    nlist.c:77:26: note: in expansion of macro ‘ELF_TARG_MACH’
+       if (ehdr->e_machine == ELF_TARG_MACH &&
+                              ^
+    
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ src/local-elf.h | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+commit 1f8a3f7bccfc84b195218ad0086ebd57049c3490
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Tue Mar 6 01:39:45 2018 +0100
+
+    Fix function declaration protection for glibc already providing them
+    
+    On non-glibc based systems we cannot unconditionally use the
+    __GLIBC_PREREQ macro as it gets expanded before evaluation. Instead,
+    if it is undefined, define it to 0.
+    
+    We should also always declare these functions on non-glibc based
+    systems. And on systems with a new enough glibc, which provides these
+    functions, we should still provide the declarations if _GNU_SOURCE
+    is *not* defined.
+    
+    Reported-by: Jörg Krause <joerg.krause@embedded.rocks>
+
+ include/bsd/stdlib.h    | 3 ++-
+ include/bsd/string.h    | 3 ++-
+ include/bsd/sys/cdefs.h | 8 ++++++++
+ 3 files changed, 12 insertions(+), 2 deletions(-)
+
+commit b20272f5a966333b49fdf2bda797e2a9f0227404
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Tue Mar 6 01:42:52 2018 +0100
+
+    Remove <features.h> inclusion from <bsd/libutil.h>
+    
+    This is a non-portable header, and we should not assume it is present.
+    Let the first system header pull it in if needed.
+
+ include/bsd/libutil.h | 1 -
+ 1 file changed, 1 deletion(-)
+
+commit 11ec8f1e5dfa1c10e0c9fb94879b6f5b96ba52dd
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Tue Mar 6 01:41:35 2018 +0100
+
+    Handle systems missing <sys/cdefs.h>
+    
+    This is a non-portable header, and we cannot expect it to be provided by
+    the system libc (e.g. musl). We just need and rely on declaration that
+    we have defined ourselves in our own <bsd/sys/cdefs.h>. So we switch to
+    only ever assume that.
+    
+    Fixes: https://bugs.freedesktop.org/105281
+
+ include/bsd/libutil.h        | 4 ++++
+ include/bsd/md5.h            | 4 ++++
+ include/bsd/nlist.h          | 4 ++++
+ include/bsd/readpassphrase.h | 4 ++++
+ include/bsd/stdlib.h         | 4 ++++
+ include/bsd/string.h         | 4 ++++
+ include/bsd/stringlist.h     | 5 +++++
+ include/bsd/sys/queue.h      | 4 ++++
+ include/bsd/sys/tree.h       | 4 ++++
+ include/bsd/timeconv.h       | 4 ++++
+ include/bsd/vis.h            | 4 ++++
+ include/bsd/wchar.h          | 4 ++++
+ 12 files changed, 49 insertions(+)
+
+commit 5ba8c5bab05c8315439c351e91ce554d4f092915
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Mon Mar 5 00:37:47 2018 +0100
+
+    progname: Port to Windows
+    
+    Define the directory separator depending on the system targetted.
+    
+    Reported-by: Progyan Bhattacharya <progyanb@acm.org>
+
+ src/progname.c | 20 ++++++++++++++------
+ 1 file changed, 14 insertions(+), 6 deletions(-)
+
+commit 0093ca2b0e3fcbb71649682a84def684340f01c9
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Mon Mar 5 00:02:34 2018 +0100
+
+    Handle SPARC V8+ on Sun Studio compiler
+
+ src/local-elf.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 0b65d43963fc1bea195e94e3af922a7893bf6fcd
+Author: James Clarke <jrtc27@jrtc27.com>
+Date:   Sun Mar 4 23:44:52 2018 +0100
+
+    Add support for ELF machine EM_SPARC32PLUS
+    
+    32-bit SPARC on V8+ uses a different ELF machine type.
+    
+    Fixes: https://bugs.gentoo.org/634550
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ src/local-elf.h | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+commit 0b61c5ffeda8fc094e6aabc70d4d99058e46d769
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Sat Jan 13 16:20:35 2018 +0100
+
+    Release libbsd 0.8.7
+
+ configure.ac | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 9ceac74e91411d3f7dbbc42d772f3500c47c7cec
+Author: Jason Duerstock <jason.duerstock@gmail.com>
+Date:   Sun Dec 3 16:50:07 2017 +0100
+
+    test: Fix nlist(3) unit test on IA64
+    
+    On IA64 this is only the case in the ELF binary, but it gets normalized
+    when loaded at run-time.
+    
+    Fixes: https://bugs.debian.org/881611
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ test/nlist.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 9afc7100a1078e177ff68349446526efe6872618
+Author: Adam Lackorzynski <adam@os.inf.tu-dresden.de>
+Date:   Sun Dec 3 16:46:19 2017 +0100
+
+    Fix <sys/cdefs.h> for gcc with no __has_include or __has_include_next support
+    
+    Fixes: https://bugs.freedesktop.org/103396
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ include/bsd/sys/cdefs.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 22fbd62368c39de8ac5e249d1502d5ac0ffdef30
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Sat Sep 2 19:55:50 2017 +0200
+
+    Handle several functions now being provided by glibc
+    
+    We mention that these are now superseded by the glibc implementations,
+    make the headers cope with already declared functions on glibc-based
+    systems, and document this in the man pages.
+
+ include/bsd/stdlib.h    |  2 ++
+ include/bsd/string.h    |  2 ++
+ man/explicit_bzero.3bsd |  3 ++-
+ man/libbsd.7            | 33 ++++++++++++++++++++++++++++-----
+ man/reallocarray.3bsd   |  3 ++-
+ 5 files changed, 36 insertions(+), 7 deletions(-)
+
+commit b4f7c065ba6d6649c33f8876445ed30b971fe09e
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Sat Aug 5 13:42:56 2017 +0200
+
+    man: Document on what other BSDs arc4random(3) is present
+
+ man/arc4random.3bsd | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+commit bbf90ac3cd55ee5b19b18bc445a066114d6ddfa4
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Mon Jul 17 01:01:13 2017 +0200
+
+    Release libbsd 0.8.6
+
+ configure.ac | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 2a8514d8a5708c2c42c5b1f9fd20bb88e71ef880
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Mon Jul 17 00:57:07 2017 +0200
+
+    Fix handling of non-contiguous argv + envp in setproctitle()
+    
+    The two arrays might not reference contiguous memory, and assuming they
+    are does break at least now on GNU/Hurd, which contains an unmapped
+    memory block between the memory used by the two arrays.
+    
+    Just check that each element is strictly after the previous one, so that
+    we know there are no unmapped memory blocks inbetween.
+
+ src/setproctitle.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 3b2b7938f7b6ddb2ff042b974e30311893113f3a
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Sun Jun 25 01:51:30 2017 +0200
+
+    test: Fix nlist() unit test on IA64 and PowerPC 64-bit ELFv1
+    
+    At least on IA64 and PowerPC 64-bit ELFv1, the functions are stored in
+    the .text sections but they are accessed through a function descriptor
+    stored in a data section, for example for PowerPC 64-bit ELFv1 that
+    section is called .opd.
+    
+    We should take this into account when checking the n_type for the
+    functions we have requested information from nlist().
+    
+    Rationale-by: James Clarke <jrtc27@jrtc27.com>
+
+ test/nlist.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+commit 415e3cb266b66683adf545f76d8844e74b9658f6
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Sat Jun 24 16:10:14 2017 +0200
+
+    Release libbsd 0.8.5
+
+ configure.ac | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 9532cb39f4cf47c9a93633d8001b3a77af05ade8
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Fri Jun 23 05:59:35 2017 +0200
+
+    man: Update man page sections in titles and references
+    
+    We have moved all man pages to section 3bsd, let's do the same for the
+    page title, and in all the references for uniformity and to avoid
+    confusions.
+    
+    Fixes: https://bugs.freedesktop.org/101545
+
+ man/arc4random.3bsd      | 2 +-
+ man/bitstring.3bsd       | 2 +-
+ man/byteorder.3bsd       | 2 +-
+ man/closefrom.3bsd       | 2 +-
+ man/errc.3bsd            | 2 +-
+ man/expand_number.3bsd   | 2 +-
+ man/explicit_bzero.3bsd  | 2 +-
+ man/fgetln.3bsd          | 2 +-
+ man/fgetwln.3bsd         | 2 +-
+ man/flopen.3bsd          | 2 +-
+ man/fmtcheck.3bsd        | 2 +-
+ man/fparseln.3bsd        | 2 +-
+ man/fpurge.3bsd          | 2 +-
+ man/funopen.3bsd         | 2 +-
+ man/getbsize.3bsd        | 2 +-
+ man/getpeereid.3bsd      | 2 +-
+ man/getprogname.3bsd     | 2 +-
+ man/heapsort.3bsd        | 2 +-
+ man/humanize_number.3bsd | 2 +-
+ man/nlist.3bsd           | 2 +-
+ man/pidfile.3bsd         | 2 +-
+ man/queue.3bsd           | 2 +-
+ man/radixsort.3bsd       | 2 +-
+ man/readpassphrase.3bsd  | 2 +-
+ man/reallocarray.3bsd    | 2 +-
+ man/reallocf.3bsd        | 2 +-
+ man/setmode.3bsd         | 2 +-
+ man/setproctitle.3bsd    | 2 +-
+ man/stringlist.3bsd      | 2 +-
+ man/strlcpy.3bsd         | 2 +-
+ man/strmode.3bsd         | 2 +-
+ man/strnstr.3bsd         | 2 +-
+ man/strtonum.3bsd        | 2 +-
+ man/timeradd.3bsd        | 6 +++---
+ man/timeval.3bsd         | 4 ++--
+ man/tree.3bsd            | 2 +-
+ man/unvis.3bsd           | 2 +-
+ man/vis.3bsd             | 4 ++--
+ man/wcslcpy.3bsd         | 2 +-
+ 39 files changed, 43 insertions(+), 43 deletions(-)
+
+commit a4dd754c8dab4db3fc415209c91e9b77ec285d3d
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Thu Jun 22 04:58:09 2017 +0200
+
+    man: Ship and install libbsd(7)
+    
+    Fixes: https://bugs.freedesktop.org/101543
+
+ man/Makefile.am | 1 +
+ 1 file changed, 1 insertion(+)
+
+commit b480b7a3f81cf49b9f3f0f8cdd20b33999aa7530
+Author: James Cowgill <jcowgill@debian.org>
+Date:   Mon Jun 19 21:38:40 2017 +0200
+
+    Fix ELF definitions for MIPS in local-elf.h
+    
+    Add a check for _MIPS_SIM inside the __mips__ #elif to detect mips64el
+    and use ELFCLASS64 in that case. Note that we can't use defined(__mips64)
+    here because that is also defined when the n32 ABI is in use, which uses
+    ELFCLASS32.
+    
+    Fixes: https://bugs.debian.org/865091
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ src/local-elf.h | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+commit 4cc20e23f5262fdeb667bbc6bd4ba57c92aac8e4
+Author: James Cowgill <jcowgill@debian.org>
+Date:   Mon Jun 19 21:37:14 2017 +0200
+
+    Fix ELF definitions for PowerPC in local-elf.h
+    
+    * ppc64el defines both __powerpc__ and __powerpc64__ but since the
+      __powerpc64__ #elif is below the __powerpc__ one, it will never be hit.
+    * Both assumed that powerpc* was big-endian.
+    
+    Fixes: https://bugs.debian.org/865091
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ src/local-elf.h | 24 ++++++++++++++++++------
+ 1 file changed, 18 insertions(+), 6 deletions(-)
+
+commit c4e58c09508453624268f70ea1ab90850cd7411b
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Mon Jun 19 21:41:13 2017 +0200
+
+    test: Remove unused variable in nlist() unit test
+
+ test/nlist.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 736e12e8d868659095ee46d32901e034840f1454
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Mon Jun 19 21:32:01 2017 +0200
+
+    test: Handle libtool executable names in getprogname() unit test
+    
+    Sometimes libtool will prefix the test programs with "lt-", we should
+    handle these and strip the prefix.
+    
+    Fixes: https://bugs.debian.org/865090
+
+ test/progname.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
+
+commit 8bff4b1fabde00c3ae0860b9fb83dadd7b3c6be9
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Mon Jun 19 03:16:56 2017 +0200
+
+    Release libbsd 0.8.4
+
+ configure.ac | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 0071b97958b48fff4fa629876f92790ab3511f7e
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Mon Jun 5 05:43:26 2017 +0200
+
+    Import <sys/time.h> for some of its macros
+    
+    Fixes: https://bugs.freedesktop.org/94320
+
+ COPYING                      |  38 ++++++++++-
+ include/Makefile.am          |   1 +
+ include/bsd/sys/time.h       | 138 +++++++++++++++++++++++++++++++++++++
+ man/Makefile.am              |  13 ++++
+ man/TIMESPEC_TO_TIMEVAL.3bsd |   1 +
+ man/TIMEVAL_TO_TIMESPEC.3bsd |   1 +
+ man/libbsd.7                 |   3 +
+ man/timeradd.3bsd            | 159 +++++++++++++++++++++++++++++++++++++++++++
+ man/timerclear.3bsd          |   1 +
+ man/timercmp.3bsd            |   1 +
+ man/timerisset.3bsd          |   1 +
+ man/timersub.3bsd            |   1 +
+ man/timespecadd.3bsd         |   1 +
+ man/timespecclear.3bsd       |   1 +
+ man/timespeccmp.3bsd         |   1 +
+ man/timespecisset.3bsd       |   1 +
+ man/timespecsub.3bsd         |   1 +
+ man/timeval.3bsd             | 133 ++++++++++++++++++++++++++++++++++++
+ 18 files changed, 495 insertions(+), 1 deletion(-)
+
+commit cdbb9d0555b36935aba0353caab0b97acb95614c
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Sun Jun 18 20:30:40 2017 +0200
+
+    test: Add new strnstr() unit test
+
+ test/.gitignore  |  1 +
+ test/Makefile.am |  1 +
+ test/strnstr.c   | 45 +++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 47 insertions(+)
+
+commit 0365d0efdaf099dd9b1147f4e01ef1b834f48aa8
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Sun Jun 18 20:30:19 2017 +0200
+
+    test: Add new setprogname() and getprogname() unit test
+
+ test/.gitignore  |  1 +
+ test/Makefile.am |  1 +
+ test/progname.c  | 43 +++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 45 insertions(+)
+
+commit 10b1328570b54159e6c06588aef0e47b2bb348c5
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Sun Jun 18 20:29:52 2017 +0200
+
+    test: Add new setmode() and getmode() unit test
+
+ test/.gitignore  |  1 +
+ test/Makefile.am |  1 +
+ test/setmode.c   | 45 +++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 47 insertions(+)
+
+commit 922eff5c5ed8517b4d78553d497bb5290f0713fa
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Wed Jun 14 01:52:12 2017 +0200
+
+    test: Add new nlist() unit test
+
+ test/.gitignore  |  1 +
+ test/Makefile.am |  1 +
+ test/nlist.c     | 79 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 81 insertions(+)
+
+commit 8e8834d8e599c0d36a5743f93984e3777eb6d35b
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Wed Jun 14 02:53:35 2017 +0200
+
+    Remove RCSID tags
+    
+    These are obsolete markers, and in some cases they repeat the
+    information already present in the comment header.
+
+ src/expand_number.c | 2 --
+ src/flopen.c        | 2 --
+ src/fmtcheck.c      | 5 +++--
+ src/fparseln.c      | 3 ---
+ src/hash/sha512c.c  | 2 --
+ src/inet_net_pton.c | 7 ++-----
+ src/merge.c         | 4 ----
+ src/pidfile.c       | 2 --
+ src/radixsort.c     | 7 -------
+ src/reallocf.c      | 1 -
+ src/setmode.c       | 8 --------
+ src/stringlist.c    | 3 ---
+ src/strmode.c       | 4 ----
+ src/strnstr.c       | 4 ----
+ src/strtonum.c      | 1 -
+ src/timeconv.c      | 2 --
+ src/wcslcat.c       | 8 +-------
+ src/wcslcpy.c       | 8 +-------
+ 18 files changed, 7 insertions(+), 66 deletions(-)
+
+commit 7938619254db81d68805b5827df36d2c5cb6ed24
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Wed Jun 14 02:45:13 2017 +0200
+
+    Update .gitignore for headers generator
+
+ test/.gitignore | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+commit ec5d9a685a672f77bf3f1cd40a704619aea562b6
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Wed Jun 14 02:44:37 2017 +0200
+
+    Namespace header inclusion protection macros
+    
+    Use LIBBSD_, and remove trailing underscores.
+
+ include/bsd/libutil.h         | 6 +++---
+ include/bsd/md5.h             | 6 +++---
+ include/bsd/netinet/ip_icmp.h | 4 ++--
+ include/bsd/readpassphrase.h  | 6 +++---
+ include/bsd/stringlist.h      | 6 +++---
+ include/bsd/sys/bitstring.h   | 6 +++---
+ include/bsd/sys/queue.h       | 6 +++---
+ include/bsd/sys/tree.h        | 6 +++---
+ include/bsd/timeconv.h        | 6 +++---
+ include/bsd/vis.h             | 6 +++---
+ 10 files changed, 29 insertions(+), 29 deletions(-)
+
+commit 47013bc92a1d0f71477aa018068b0923fdaf6ccf
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Wed Jun 14 01:49:25 2017 +0200
+
+    Fix broken mmap() usage in nlist() by switching to pread()
+    
+    The offset is not page aligned, which makes mmap() return EINVAL on
+    Linux. Switch to use pread() which handles unaligned offset and non-page
+    sized reads, and because we are already loading parts of the executable
+    by read() calls, so there's not much point in using mmap() anyway.
+
+ src/nlist.c | 31 ++++++++++++++++---------------
+ 1 file changed, 16 insertions(+), 15 deletions(-)
+
+commit e8d340de9e2ce39e340dde81ee139d5631ab0049
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Mon Jun 5 05:30:27 2017 +0200
+
+    Remove a.out support from nlist()
+    
+    Some libc libraries do not have an <a.out.h> header. And a.out as an
+    executable format is very much obsolete on pretty much all currently
+    supported systems, even if they might still support loading such
+    objects.
+    
+    Remove the a.out support to increase portability.
+
+ include/bsd/nlist.h |  63 ++++++++++++--
+ src/nlist.c         | 247 +++++++++++-----------------------------------------
+ 2 files changed, 109 insertions(+), 201 deletions(-)
+
+commit 7aede6a999ef7b6bd2b82aed55896611331a8eea
+Author: Igor Gnatenko <i.gnatenko.brain@gmail.com>
+Date:   Mon Jun 27 09:21:43 2016 +0200
+
+    Make strlcpy()/strlcat() slightly easier to read
+    
+    Backport new changes from OpenBSD.
+    
+    [guillem@hadrons.org:
+     - Update copyright years in COPYING. ]
+    
+    References: https://svnweb.freebsd.org/base?view=revision&revision=281135
+    Signed-off-by: Igor Gnatenko <i.gnatenko.brain@gmail.com>
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ COPYING       |  2 +-
+ src/strlcat.c | 48 ++++++++++++++++++++++++------------------------
+ src/strlcpy.c | 37 ++++++++++++++++++-------------------
+ 3 files changed, 43 insertions(+), 44 deletions(-)
+
+commit ab5db68bae418e91ae3475721845e6282f6da860
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Mon Jun 19 03:02:32 2017 +0200
+
+    build: Add missing \ at end of line
+    
+    Fixes: commit 934b7a0ccbdc60313102f153eadc2f46853a505b
+
+ man/Makefile.am | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 5a46e4867d09b375449a145e8628edb5637b60af
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Sun Jun 18 20:30:51 2017 +0200
+
+    Update TODO
+
+ TODO | 3 +++
+ 1 file changed, 3 insertions(+)
+
+commit 7a75f550e83d12f80ca6346db677198f45f1d9ff
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Tue Jun 6 04:56:49 2017 +0200
+
+    Update TODO
+
+ TODO | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+commit f1dd5f2e7179504bc18859f323b806a46d4a5aec
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Fri Jun 9 05:13:32 2017 +0200
+
+    test: Add unit test for strlcpy() and strlcat()
+
+ test/.gitignore  |  1 +
+ test/Makefile.am |  1 +
+ test/strl.c      | 84 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 86 insertions(+)
+
+commit c8a1b08b74dd0682b88ce334fcc795b727014713
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Fri Jun 9 05:14:24 2017 +0200
+
+    build: Match any glibc and musl ABIs on the host_os AS_CASE
+    
+    Reported-by: Helmut Grohne <helmut@subdivi.de>
+
+ configure.ac | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 4fec871c792bb6c01dc9a82dabf21374d59bd689
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Fri Jun 9 04:52:45 2017 +0200
+
+    build: Quote the arguments to AC_CONDITIONAL
+
+ configure.ac | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 3945693ebe9919715bc3c6c139bac35e4f989a93
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Fri Jun 9 04:52:45 2017 +0200
+
+    build: Move AC_TYPE_UID_T close to the other AC_TYPE_* checks
+
+ configure.ac | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit c253365d65c5cefeb78f20cf10b817c0f5dd910e
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Fri Jun 9 04:52:45 2017 +0200
+
+    build: Move configure.ac comment into actual AC_CASE
+
+ configure.ac | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 8248e5f7a61761ee057ca7e2c4f6ee618c43c5be
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Wed Jun 7 23:09:40 2017 +0200
+
+    build: Use src/strlcpy.c in AC_CONFIG_SRCDIR
+    
+    The src/fgetln.c file contains a function considered obsolete, use one
+    that is not.
+
+ configure.ac | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit c74ca099160820faaf8a50c46e8f33f48f3c9a18
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Wed Jun 7 22:46:07 2017 +0200
+
+    man: Use .In intead of .Fd macros for includes
+
+ man/mdX.3bsd            | 4 ++--
+ man/readpassphrase.3bsd | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+commit ba9e2a5a9cc097047517257383795a3335faea43
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Mon Jun 5 06:33:47 2017 +0200
+
+    man: Add new libbsd(7) library overview man page
+
+ COPYING                  |   2 +-
+ man/arc4random.3bsd      |   5 +-
+ man/bitstring.3bsd       |   5 +-
+ man/byteorder.3bsd       |   3 +
+ man/closefrom.3bsd       |   5 +-
+ man/errc.3bsd            |   3 +
+ man/expand_number.3bsd   |   5 +-
+ man/explicit_bzero.3bsd  |   5 +-
+ man/fgetln.3bsd          |   5 +-
+ man/fgetwln.3bsd         |   5 +-
+ man/flopen.3bsd          |   5 +-
+ man/fmtcheck.3bsd        |   5 +-
+ man/fparseln.3bsd        |   5 +-
+ man/fpurge.3bsd          |   3 +
+ man/funopen.3bsd         |   5 +-
+ man/getbsize.3bsd        |   5 +-
+ man/getpeereid.3bsd      |   5 +-
+ man/getprogname.3bsd     |   5 +-
+ man/heapsort.3bsd        |   5 +-
+ man/humanize_number.3bsd |   5 +-
+ man/libbsd.7             | 206 +++++++++++++++++++++++++++++++++++++++++++++++
+ man/mdX.3bsd             |   5 +-
+ man/nlist.3bsd           |   5 +-
+ man/pidfile.3bsd         |   5 +-
+ man/queue.3bsd           |   5 +-
+ man/radixsort.3bsd       |   5 +-
+ man/readpassphrase.3bsd  |   5 +-
+ man/reallocarray.3bsd    |   5 +-
+ man/reallocf.3bsd        |   5 +-
+ man/setmode.3bsd         |   5 +-
+ man/setproctitle.3bsd    |   5 +-
+ man/stringlist.3bsd      |   5 +-
+ man/strlcpy.3bsd         |   5 +-
+ man/strmode.3bsd         |   5 +-
+ man/strnstr.3bsd         |   5 +-
+ man/strtonum.3bsd        |   5 +-
+ man/tree.3bsd            |   5 +-
+ man/unvis.3bsd           |   5 +-
+ man/vis.3bsd             |   5 +-
+ man/wcslcpy.3bsd         |   5 +-
+ 40 files changed, 356 insertions(+), 36 deletions(-)
+
+commit 6a5a515820052986e28c53f794ab4f54c2736cb6
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Wed Jun 7 05:00:34 2017 +0200
+
+    man: Add missing man pages
+    
+    This adds man pages for byteorder(3), errc(3) and fpurge(3), including
+    all their aliases.
+
+ COPYING            |   8 ++-
+ man/Makefile.am    |  15 +++++
+ man/be16dec.3bsd   |   1 +
+ man/be16enc.3bsd   |   1 +
+ man/be32dec.3bsd   |   1 +
+ man/be32enc.3bsd   |   1 +
+ man/be64dec.3bsd   |   1 +
+ man/be64enc.3bsd   |   1 +
+ man/byteorder.3bsd |  83 +++++++++++++++++++++++++
+ man/errc.3bsd      | 175 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ man/fpurge.3bsd    |  79 ++++++++++++++++++++++++
+ man/le16dec.3bsd   |   1 +
+ man/le16enc.3bsd   |   1 +
+ man/le32dec.3bsd   |   1 +
+ man/le32enc.3bsd   |   1 +
+ man/le64dec.3bsd   |   1 +
+ man/le64enc.3bsd   |   1 +
+ 17 files changed, 371 insertions(+), 1 deletion(-)
+
+commit 934b7a0ccbdc60313102f153eadc2f46853a505b
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Mon Jun 5 06:32:36 2017 +0200
+
+    man: Add missing aliases
+
+ man/LIST_EMPTY.3bsd                      |   1 +
+ man/LIST_ENTRY.3bsd                      |   1 +
+ man/LIST_FIRST.3bsd                      |   1 +
+ man/LIST_FOREACH.3bsd                    |   1 +
+ man/LIST_FOREACH_FROM.3bsd               |   1 +
+ man/LIST_FOREACH_FROM_SAFE.3bsd          |   1 +
+ man/LIST_FOREACH_SAFE.3bsd               |   1 +
+ man/LIST_HEAD.3bsd                       |   1 +
+ man/LIST_HEAD_INITIALIZER.3bsd           |   1 +
+ man/LIST_INIT.3bsd                       |   1 +
+ man/LIST_INSERT_AFTER.3bsd               |   1 +
+ man/LIST_INSERT_BEFORE.3bsd              |   1 +
+ man/LIST_INSERT_HEAD.3bsd                |   1 +
+ man/LIST_NEXT.3bsd                       |   1 +
+ man/LIST_PREV.3bsd                       |   1 +
+ man/LIST_REMOVE.3bsd                     |   1 +
+ man/LIST_SWAP.3bsd                       |   1 +
+ man/Makefile.am                          | 145 ++++++++++++++++++++++++++++++-
+ man/RB_EMPTY.3bsd                        |   1 +
+ man/RB_ENTRY.3bsd                        |   1 +
+ man/RB_FIND.3bsd                         |   1 +
+ man/RB_FOREACH.3bsd                      |   1 +
+ man/RB_FOREACH_REVERSE.3bsd              |   1 +
+ man/RB_GENERATE.3bsd                     |   1 +
+ man/RB_GENERATE_STATIC.3bsd              |   1 +
+ man/RB_HEAD.3bsd                         |   1 +
+ man/RB_INIT.3bsd                         |   1 +
+ man/RB_INITIALIZER.3bsd                  |   1 +
+ man/RB_INSERT.3bsd                       |   1 +
+ man/RB_LEFT.3bsd                         |   1 +
+ man/RB_MAX.3bsd                          |   1 +
+ man/RB_MIN.3bsd                          |   1 +
+ man/RB_NEXT.3bsd                         |   1 +
+ man/RB_NFIND.3bsd                        |   1 +
+ man/RB_PARENT.3bsd                       |   1 +
+ man/RB_PREV.3bsd                         |   1 +
+ man/RB_PROTOTYPE.3bsd                    |   1 +
+ man/RB_PROTOTYPE_STATIC.3bsd             |   1 +
+ man/RB_REMOVE.3bsd                       |   1 +
+ man/RB_RIGHT.3bsd                        |   1 +
+ man/RB_ROOT.3bsd                         |   1 +
+ man/SLIST_EMPTY.3bsd                     |   1 +
+ man/SLIST_ENTRY.3bsd                     |   1 +
+ man/SLIST_FIRST.3bsd                     |   1 +
+ man/SLIST_FOREACH.3bsd                   |   1 +
+ man/SLIST_FOREACH_FROM.3bsd              |   1 +
+ man/SLIST_FOREACH_FROM_SAFE.3bsd         |   1 +
+ man/SLIST_FOREACH_SAFE.3bsd              |   1 +
+ man/SLIST_HEAD.3bsd                      |   1 +
+ man/SLIST_HEAD_INITIALIZER.3bsd          |   1 +
+ man/SLIST_INIT.3bsd                      |   1 +
+ man/SLIST_INSERT_AFTER.3bsd              |   1 +
+ man/SLIST_INSERT_HEAD.3bsd               |   1 +
+ man/SLIST_NEXT.3bsd                      |   1 +
+ man/SLIST_REMOVE.3bsd                    |   1 +
+ man/SLIST_REMOVE_AFTER.3bsd              |   1 +
+ man/SLIST_REMOVE_HEAD.3bsd               |   1 +
+ man/SLIST_SWAP.3bsd                      |   1 +
+ man/SPLAY_EMPTY.3bsd                     |   1 +
+ man/SPLAY_ENTRY.3bsd                     |   1 +
+ man/SPLAY_FIND.3bsd                      |   1 +
+ man/SPLAY_FOREACH.3bsd                   |   1 +
+ man/SPLAY_GENERATE.3bsd                  |   1 +
+ man/SPLAY_HEAD.3bsd                      |   1 +
+ man/SPLAY_INIT.3bsd                      |   1 +
+ man/SPLAY_INITIALIZER.3bsd               |   1 +
+ man/SPLAY_INSERT.3bsd                    |   1 +
+ man/SPLAY_LEFT.3bsd                      |   1 +
+ man/SPLAY_MAX.3bsd                       |   1 +
+ man/SPLAY_MIN.3bsd                       |   1 +
+ man/SPLAY_NEXT.3bsd                      |   1 +
+ man/SPLAY_PROTOTYPE.3bsd                 |   1 +
+ man/SPLAY_REMOVE.3bsd                    |   1 +
+ man/SPLAY_RIGHT.3bsd                     |   1 +
+ man/SPLAY_ROOT.3bsd                      |   1 +
+ man/STAILQ_CONCAT.3bsd                   |   1 +
+ man/STAILQ_EMPTY.3bsd                    |   1 +
+ man/STAILQ_ENTRY.3bsd                    |   1 +
+ man/STAILQ_FIRST.3bsd                    |   1 +
+ man/STAILQ_FOREACH.3bsd                  |   1 +
+ man/STAILQ_FOREACH_FROM.3bsd             |   1 +
+ man/STAILQ_FOREACH_FROM_SAFE.3bsd        |   1 +
+ man/STAILQ_FOREACH_SAFE.3bsd             |   1 +
+ man/STAILQ_HEAD.3bsd                     |   1 +
+ man/STAILQ_HEAD_INITIALIZER.3bsd         |   1 +
+ man/STAILQ_INIT.3bsd                     |   1 +
+ man/STAILQ_INSERT_AFTER.3bsd             |   1 +
+ man/STAILQ_INSERT_HEAD.3bsd              |   1 +
+ man/STAILQ_INSERT_TAIL.3bsd              |   1 +
+ man/STAILQ_LAST.3bsd                     |   1 +
+ man/STAILQ_NEXT.3bsd                     |   1 +
+ man/STAILQ_REMOVE.3bsd                   |   1 +
+ man/STAILQ_REMOVE_AFTER.3bsd             |   1 +
+ man/STAILQ_REMOVE_HEAD.3bsd              |   1 +
+ man/STAILQ_SWAP.3bsd                     |   1 +
+ man/TAILQ_CONCAT.3bsd                    |   1 +
+ man/TAILQ_EMPTY.3bsd                     |   1 +
+ man/TAILQ_ENTRY.3bsd                     |   1 +
+ man/TAILQ_FIRST.3bsd                     |   1 +
+ man/TAILQ_FOREACH.3bsd                   |   1 +
+ man/TAILQ_FOREACH_FROM.3bsd              |   1 +
+ man/TAILQ_FOREACH_FROM_SAFE.3bsd         |   1 +
+ man/TAILQ_FOREACH_REVERSE.3bsd           |   1 +
+ man/TAILQ_FOREACH_REVERSE_FROM.3bsd      |   1 +
+ man/TAILQ_FOREACH_REVERSE_FROM_SAFE.3bsd |   1 +
+ man/TAILQ_FOREACH_REVERSE_SAFE.3bsd      |   1 +
+ man/TAILQ_FOREACH_SAFE.3bsd              |   1 +
+ man/TAILQ_HEAD.3bsd                      |   1 +
+ man/TAILQ_HEAD_INITIALIZER.3bsd          |   1 +
+ man/TAILQ_INIT.3bsd                      |   1 +
+ man/TAILQ_INSERT_AFTER.3bsd              |   1 +
+ man/TAILQ_INSERT_BEFORE.3bsd             |   1 +
+ man/TAILQ_INSERT_HEAD.3bsd               |   1 +
+ man/TAILQ_INSERT_TAIL.3bsd               |   1 +
+ man/TAILQ_LAST.3bsd                      |   1 +
+ man/TAILQ_NEXT.3bsd                      |   1 +
+ man/TAILQ_PREV.3bsd                      |   1 +
+ man/TAILQ_REMOVE.3bsd                    |   1 +
+ man/TAILQ_SWAP.3bsd                      |   1 +
+ man/bit_alloc.3bsd                       |   1 +
+ man/bit_clear.3bsd                       |   1 +
+ man/bit_decl.3bsd                        |   1 +
+ man/bit_ffc.3bsd                         |   1 +
+ man/bit_ffs.3bsd                         |   1 +
+ man/bit_nclear.3bsd                      |   1 +
+ man/bit_nset.3bsd                        |   1 +
+ man/bit_set.3bsd                         |   1 +
+ man/bit_test.3bsd                        |   1 +
+ man/bitstr_size.3bsd                     |   1 +
+ man/pidfile_close.3bsd                   |   1 +
+ man/pidfile_open.3bsd                    |   1 +
+ man/pidfile_remove.3bsd                  |   1 +
+ man/pidfile_write.3bsd                   |   1 +
+ man/setproctitle_init.3bsd               |   1 +
+ man/sl_add.3bsd                          |   1 +
+ man/sl_delete.3bsd                       |   1 +
+ man/sl_find.3bsd                         |   1 +
+ man/sl_free.3bsd                         |   1 +
+ man/sl_init.3bsd                         |   1 +
+ man/strnunvis.3bsd                       |   1 +
+ man/strnvis.3bsd                         |   1 +
+ man/strunvis.3bsd                        |   1 +
+ man/strvis.3bsd                          |   1 +
+ man/strvisx.3bsd                         |   1 +
+ 144 files changed, 287 insertions(+), 1 deletion(-)
+
+commit f20e6972b3a5ef4d1bfa2e3b2577caa3f9e357fc
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Mon Jun 5 06:43:22 2017 +0200
+
+    man: Move all man pages to section 3bsd
+    
+    This should guarantee that even if the system provides or will provide
+    native implementations of these functions, we will not have file
+    conflicts.
+
+ COPYING                                         | 64 +++++++++---------
+ man/.gitignore                                  |  1 -
+ man/Makefile.am                                 | 86 ++++++++++++-------------
+ man/{arc4random.3 => arc4random.3bsd}           |  0
+ man/arc4random_addrandom.3                      |  1 -
+ man/arc4random_addrandom.3bsd                   |  1 +
+ man/arc4random_buf.3                            |  1 -
+ man/arc4random_buf.3bsd                         |  1 +
+ man/arc4random_stir.3                           |  1 -
+ man/arc4random_stir.3bsd                        |  1 +
+ man/arc4random_uniform.3                        |  1 -
+ man/arc4random_uniform.3bsd                     |  1 +
+ man/{bitstring.3 => bitstring.3bsd}             |  0
+ man/{closefrom.3 => closefrom.3bsd}             |  0
+ man/dehumanize_number.3                         |  1 -
+ man/dehumanize_number.3bsd                      |  1 +
+ man/{expand_number.3 => expand_number.3bsd}     |  2 +-
+ man/{explicit_bzero.3 => explicit_bzero.3bsd}   |  0
+ man/{fgetln.3 => fgetln.3bsd}                   |  2 +-
+ man/{fgetwln.3 => fgetwln.3bsd}                 |  2 +-
+ man/{flopen.3 => flopen.3bsd}                   |  0
+ man/{fmtcheck.3 => fmtcheck.3bsd}               |  0
+ man/{fparseln.3 => fparseln.3bsd}               |  0
+ man/{getbsize.3 => getbsize.3bsd}               |  0
+ man/getmode.3                                   |  1 -
+ man/getmode.3bsd                                |  1 +
+ man/{getpeereid.3 => getpeereid.3bsd}           |  0
+ man/{getprogname.3 => getprogname.3bsd}         |  2 +-
+ man/{heapsort.3 => heapsort.3bsd}               |  2 +-
+ man/{humanize_number.3 => humanize_number.3bsd} |  0
+ man/mergesort.3                                 |  1 -
+ man/mergesort.3bsd                              |  1 +
+ man/{nlist.3 => nlist.3bsd}                     |  0
+ man/{pidfile.3 => pidfile.3bsd}                 |  6 +-
+ man/queue.3bsd                                  |  2 +-
+ man/{radixsort.3 => radixsort.3bsd}             |  0
+ man/{readpassphrase.3 => readpassphrase.3bsd}   |  0
+ man/{reallocarray.3 => reallocarray.3bsd}       |  0
+ man/{reallocf.3 => reallocf.3bsd}               |  0
+ man/{setmode.3 => setmode.3bsd}                 |  0
+ man/{setproctitle.3 => setproctitle.3bsd}       |  0
+ man/setprogname.3                               |  1 -
+ man/setprogname.3bsd                            |  1 +
+ man/sradixsort.3                                |  1 -
+ man/sradixsort.3bsd                             |  1 +
+ man/{stringlist.3 => stringlist.3bsd}           |  0
+ man/strlcat.3                                   |  1 -
+ man/strlcat.3bsd                                |  1 +
+ man/{strlcpy.3 => strlcpy.3bsd}                 |  0
+ man/{strmode.3 => strmode.3bsd}                 |  4 +-
+ man/{strnstr.3 => strnstr.3bsd}                 |  0
+ man/{strtonum.3 => strtonum.3bsd}               |  0
+ man/{tree.3 => tree.3bsd}                       |  2 +-
+ man/{unvis.3 => unvis.3bsd}                     |  4 +-
+ man/{vis.3 => vis.3bsd}                         |  8 +--
+ man/wcslcat.3                                   |  1 -
+ man/wcslcat.3bsd                                |  1 +
+ man/{wcslcpy.3 => wcslcpy.3bsd}                 |  6 +-
+ 58 files changed, 107 insertions(+), 108 deletions(-)
+
+commit 07c76b666dc8e8fd2fb4f2b716f65687b60af8c7
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Mon Jun 5 06:17:27 2017 +0200
+
+    Do not use legacy BSD u_* types
+    
+    Some systems do not have these types available, and they are simply
+    convenience aliases. Instead use the expanded versions which are more
+    portable.
+    
+    Fixes: https://bugs.freedesktop.org/show_bug.cgi?id=101192
+
+ include/bsd/netinet/ip_icmp.h | 22 +++++++--------
+ include/bsd/stdlib.h          |  2 +-
+ src/arc4random.c              | 16 +++++------
+ src/chacha_private.h          |  2 +-
+ src/getentropy_bsd.c          |  2 +-
+ src/hash/helper.c             |  4 +--
+ src/inet_net_pton.c           |  8 +++---
+ src/merge.c                   | 27 +++++++++---------
+ src/nlist.c                   |  2 +-
+ src/radixsort.c               | 64 +++++++++++++++++++++++--------------------
+ src/unvis.c                   |  7 +++--
+ src/vis.c                     | 17 +++++++-----
+ 12 files changed, 92 insertions(+), 81 deletions(-)
+
+commit e4475738fefe3b0c7388b293e8b0828560c6b830
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Fri Jan 20 02:20:12 2017 +0100
+
+    Try <linux/a.out.h> if <a.out.h> is not present
+    
+    At least musl ships the former but not the latter.
+
+ include/bsd/nlist.h | 5 +++++
+ 1 file changed, 5 insertions(+)
+
+commit d6c35f618c4f3ca20a43a5a28e08cde3540e6b7c
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Tue Jan 10 04:33:15 2017 +0100
+
+    Do not provide funopen() on musl
+    
+    Fixes: https://bugs.debian.org/818246
+
+ configure.ac   |  6 +++++-
+ src/funopen.c  | 10 ++++++++--
+ src/libbsd.map |  3 +++
+ 3 files changed, 16 insertions(+), 3 deletions(-)
+
+commit db7470b048a14bdc69a34fbd192ec626e1786411
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Tue Jan 10 04:27:25 2017 +0100
+
+    Gracefully handle lack of system <sys/cdefs.h>
+    
+    This is the case on musl.
+    
+    Fixes: https://bugs.debian.org/810589
+
+ include/bsd/sys/cdefs.h | 25 +++++++++++++++++++++++++
+ 1 file changed, 25 insertions(+)
+
+commit 368af99f554ca1c7211faf9eedfffcf45e5e76bb
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Sun Aug 28 17:13:20 2016 +0200
+
+    Fix the __progname check to avoid the optimizer discarding the symbol
+    
+    Because we were assigning to another unused variable, when building the
+    check with optimizations enabled, which is the default when using gcc
+    as the compiler, the variable was being discarded. Instead pass it to
+    printf() so that it cannot do so.
+
+ configure.ac | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
+
+commit 337e62027503aa6e09ca7adbe94cd7077f3241c3
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Tue Jan 10 04:24:35 2017 +0100
+
+    Support GCC deprecated attribute for GCC older than 4.5
+    
+    Fixes: https://bugs.freedesktop.org/show_bug.cgi?id=99190
+    Based-on-patch-by: Eric Smith <brouhaha@fedoraproject.org>
+
+ include/bsd/stdio.h     | 10 +++++++---
+ include/bsd/sys/cdefs.h |  8 ++++++++
+ 2 files changed, 15 insertions(+), 3 deletions(-)
+
+commit 088f147ec8e55b760cf631a09d5defb332e7e9c7
+Author: Guillem Jover <guillem@hadrons.org>
+Date:   Wed Feb 8 01:49:48 2017 +0100
+
+    Add support for RISC-V
+
+ src/local-elf.h | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
+
+commit b2b1020d8e164d2770bf1307edca85f2d2420deb
+Author: Helmut Grohne <helmut@subdivi.de>
+Date:   Tue Jan 10 03:47:52 2017 +0100
+
+    Add support for TileGX
+    
+    Fixes: https://bugs.debian.org/847560
+    Signed-off-by: Guillem Jover <guillem@hadrons.org>
+
+ src/local-elf.h | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
 commit 9bed430ee30e677d8774e4feba8707507979d62b
 Author: Guillem Jover <guillem@hadrons.org>
 Date:   Sat Apr 23 10:13:23 2016 +0200
@@ -124,13 +2222,13 @@ Date:   Wed Jan 27 15:10:11 2016 +0100
     There is a while loop that has this check to see whether there's still
     enough space in the buffer:
     
-    		if (!fb->len || wused > fb->len) {
+                    if (!fb->len || wused > fb->len) {
     
     If this is true more memory gets allocated. However this test won't be
     true if wused == fb->len, but at that point wused already points out
     of the buffer. Some lines later there's a write to the buffer:
     
-    		fb->wbuf[wused++] = wc;
+                    fb->wbuf[wused++] = wc;
     
     This bug was found with the help of address sanitizer.
     
