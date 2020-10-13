@@ -4,19 +4,19 @@
 #
 # Source0 file verified with key 0xB972BF3EA4AE57A3 (guillem@debian.org)
 #
+%define keepstatic 1
 Name     : libbsd
 Version  : 0.10.0
-Release  : 12
+Release  : 13
 URL      : https://libbsd.freedesktop.org/releases/libbsd-0.10.0.tar.xz
 Source0  : https://libbsd.freedesktop.org/releases/libbsd-0.10.0.tar.xz
-Source1 : https://libbsd.freedesktop.org/releases/libbsd-0.10.0.tar.xz.asc
+Source1  : https://libbsd.freedesktop.org/releases/libbsd-0.10.0.tar.xz.asc
 Summary  : Utility functions from BSD systems
 Group    : Development/Tools
 License  : BSD-3-Clause BSD-4-Clause
 Requires: libbsd-lib = %{version}-%{release}
 Requires: libbsd-license = %{version}-%{release}
 Requires: libbsd-man = %{version}-%{release}
-BuildRequires : util-linux
 
 %description
 libbsd - Utility functions from BSD systems
@@ -61,6 +61,15 @@ Group: Default
 man components for the libbsd package.
 
 
+%package staticdev
+Summary: staticdev components for the libbsd package.
+Group: Default
+Requires: libbsd-dev = %{version}-%{release}
+
+%description staticdev
+staticdev components for the libbsd package.
+
+
 %prep
 %setup -q -n libbsd-0.10.0
 cd %{_builddir}/libbsd-0.10.0
@@ -70,13 +79,13 @@ export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
 export LANG=C.UTF-8
-export SOURCE_DATE_EPOCH=1572893209
+export SOURCE_DATE_EPOCH=1602609365
 export GCC_IGNORE_WERROR=1
 export CFLAGS="$CFLAGS -fno-lto "
-export FCFLAGS="$CFLAGS -fno-lto "
-export FFLAGS="$CFLAGS -fno-lto "
+export FCFLAGS="$FFLAGS -fno-lto "
+export FFLAGS="$FFLAGS -fno-lto "
 export CXXFLAGS="$CXXFLAGS -fno-lto "
-%configure --disable-static
+%configure
 make  %{?_smp_mflags}
 
 %check
@@ -84,10 +93,10 @@ export LANG=C.UTF-8
 export http_proxy=http://127.0.0.1:9/
 export https_proxy=http://127.0.0.1:9/
 export no_proxy=localhost,127.0.0.1,0.0.0.0
-make VERBOSE=1 V=1 %{?_smp_mflags} check
+make %{?_smp_mflags} check
 
 %install
-export SOURCE_DATE_EPOCH=1572893209
+export SOURCE_DATE_EPOCH=1602609365
 rm -rf %{buildroot}
 mkdir -p %{buildroot}/usr/share/package-licenses/libbsd
 cp %{_builddir}/libbsd-0.10.0/COPYING %{buildroot}/usr/share/package-licenses/libbsd/45d03b217a50eaa1c429fd65d492e05b9cd2d85b
@@ -360,3 +369,8 @@ cp %{_builddir}/libbsd-0.10.0/COPYING %{buildroot}/usr/share/package-licenses/li
 %files man
 %defattr(0644,root,root,0755)
 /usr/share/man/man7/libbsd.7
+
+%files staticdev
+%defattr(-,root,root,-)
+/usr/lib64/libbsd-ctor.a
+/usr/lib64/libbsd.a
