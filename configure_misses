@@ -1,9 +1,18 @@
-Configure miss: unif01_CreateExternGenBits in -ltestu01
-Configure miss: sys/ndir.h usability
-Configure miss: sys/ndir.h presence
-Configure miss: sys/ndir.h
-Configure miss: ndir.h usability
-Configure miss: ndir.h presence
 Configure miss: ndir.h
-Configure miss: whether F_CLOSEM is declared
+Configure miss: ndir.h
+Configure miss: ndir.h presence
+Configure miss: ndir.h presence
+Configure miss: ndir.h usability
+Configure miss: ndir.h usability
 Configure miss: pstat_getproc
+Configure miss: pstat_getproc
+Configure miss: sys/ndir.h
+Configure miss: sys/ndir.h
+Configure miss: sys/ndir.h presence
+Configure miss: sys/ndir.h presence
+Configure miss: sys/ndir.h usability
+Configure miss: sys/ndir.h usability
+Configure miss: unif01_CreateExternGenBits in -ltestu01
+Configure miss: unif01_CreateExternGenBits in -ltestu01
+Configure miss: whether F_CLOSEM is declared
+Configure miss: whether F_CLOSEM is declared
